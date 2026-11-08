@@ -1,0 +1,16 @@
+name: Public demo smoke tests
+on: [push, pull_request]
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Tests (no source screenplays needed)
+        run: python3 -m unittest discover -s tests -v
+      - name: Run fictional script through full pipeline
+        run: python3 run_pipeline.py --episode 099 --source-dir examples --input-dir demo_processed --output-dir demo_outputs --force
+      - name: Verify generated CSV contains episode 099
+        run: python3 -c "from pathlib import Path; s=Path('demo_outputs/ranked_promos.csv').read_text(); assert ',099,' in s"
